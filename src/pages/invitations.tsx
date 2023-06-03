@@ -141,7 +141,7 @@ const actions = columnHelper.display({
 
 export function Actions(props: CellContext<Invitation, unknown>) {
 	const { getValue } = props;
-	const value = getValue();
+	// const value = getValue();
 	const [state, copyToClipboard] = useCopyToClipboard();
 
 	function onCopy() {

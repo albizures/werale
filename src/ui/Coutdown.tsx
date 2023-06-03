@@ -1,5 +1,5 @@
-import intervalToDuration from 'date-fns/intervalToDuration';
 import React from 'react';
+import intervalToDuration from 'date-fns/intervalToDuration';
 
 const date = new Date(2023, 8, 16);
 export function CounterDownDate() {

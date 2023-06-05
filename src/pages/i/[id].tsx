@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { BiSad, BiHappy, BiX } from 'react-icons/bi';
 import { Loading } from '~/ui/Layout';
 import { api } from '~/utils/api';
-import { CounterDownDate } from '~/ui/Coutdown';
+import { CounterDownDate } from '~/ui/Countdown';
 
 const querySchema = z.object({
 	id: z.string(),

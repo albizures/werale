@@ -31,16 +31,19 @@ export function CounterDownDate() {
 
 	return (
 		<div className="grid auto-cols-max grid-flow-col gap-5 text-center">
-			<CounterDown label="Dias" value={left.days!} />
-			<CounterDown label="Horas" value={left.hours!} />
-			<CounterDown label="Min" value={left.minutes!} />
-			<CounterDown label="Seg" value={left.seconds!} />
+			{left.months !== 0 && (
+				<CounterDown label="Meses" value={left.months} />
+			)}
+			<CounterDown label="Dias" value={left.days} />
+			<CounterDown label="Horas" value={left.hours} />
+			<CounterDown label="Min" value={left.minutes} />
+			<CounterDown label="Seg" value={left.seconds} />
 		</div>
 	);
 }
 
 interface CounterDownProps {
-	value: number;
+	value?: number;
 	label: string;
 }
 
@@ -54,11 +57,16 @@ function CounterDown(props: CounterDownProps) {
 		}
 	}, [value]);
 
+	if (value === undefined) {
+		return null;
+	}
+
 	return (
 		<div className="flex flex-col">
 			<span className="countdown font-mono text-5xl">
 				<span ref={ref}></span>
 			</span>
+
 			{label}
 		</div>
 	);

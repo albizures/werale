@@ -8,6 +8,7 @@ import {
 	useReactTable,
 } from '@tanstack/react-table';
 import { type inferProcedureInput } from '@trpc/server';
+import Link from 'next/link';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useCopyToClipboard } from 'react-use';
@@ -15,6 +16,8 @@ import { type AppRouter } from '~/server/api/root';
 import { Field } from '~/ui/Field';
 import { Layout } from '~/ui/Layout';
 import { api } from '~/utils/api';
+import { BiCopy } from 'react-icons/bi';
+import clsx from 'clsx';
 
 export default function Invitations() {
 	return (
@@ -140,18 +143,29 @@ const actions = columnHelper.display({
 });
 
 export function Actions(props: CellContext<Invitation, unknown>) {
-	const { getValue } = props;
-	// const value = getValue();
+	const {} = props;
+	const invitation = props.row.original;
+	const link = `${location.origin}/i/${invitation.id}`;
 	const [state, copyToClipboard] = useCopyToClipboard();
 
 	function onCopy() {
-		copyToClipboard('test');
+		copyToClipboard(link);
 	}
+	console.log('state', state);
 
 	return (
-		<div>
-			<button onClick={onCopy} className="btn-link btn">
+		<div className="flex items-center">
+			<Link href={link} target="_blank" className="btn-link btn">
 				link
+			</Link>
+			<button
+				onClick={onCopy}
+				className={clsx('text-lg', {
+					'text-primary-focus': !state.value,
+					'text-success': state.value,
+				})}
+			>
+				<BiCopy />
 			</button>
 		</div>
 	);

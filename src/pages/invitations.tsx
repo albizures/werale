@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
+import clsx from 'clsx';
 import type { Invitation } from '@prisma/client';
 import {
 	type CellContext,
@@ -11,13 +12,14 @@ import { type inferProcedureInput } from '@trpc/server';
 import Link from 'next/link';
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { BiCopy } from 'react-icons/bi';
+import { AiOutlineQrcode } from 'react-icons/ai';
 import { useCopyToClipboard } from 'react-use';
 import { type AppRouter } from '~/server/api/root';
 import { Field } from '~/ui/Field';
 import { Layout } from '~/ui/Layout';
 import { api } from '~/utils/api';
-import { BiCopy } from 'react-icons/bi';
-import clsx from 'clsx';
+import QRCode from 'qrcode';
 
 export default function Invitations() {
 	return (
@@ -142,6 +144,16 @@ const actions = columnHelper.display({
 	cell: (props) => <Actions {...props} />,
 });
 
+function downloadURI(name: string, uri: string) {
+	const link = document.createElement('a');
+	link.download = name;
+	link.href = uri;
+	link.style.display = 'none';
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);
+}
+
 export function Actions(props: CellContext<Invitation, unknown>) {
 	const {} = props;
 	const invitation = props.row.original;
@@ -151,7 +163,13 @@ export function Actions(props: CellContext<Invitation, unknown>) {
 	function onCopy() {
 		copyToClipboard(link);
 	}
-	console.log('state', state);
+
+	async function onQRCode() {
+		downloadURI(
+			`qr-${invitation.name}.png`,
+			await QRCode.toDataURL(link),
+		);
+	}
 
 	return (
 		<div className="flex items-center">
@@ -166,6 +184,12 @@ export function Actions(props: CellContext<Invitation, unknown>) {
 				})}
 			>
 				<BiCopy />
+			</button>
+			<button
+				onClick={onQRCode}
+				className="ml-3 text-lg text-primary-focus"
+			>
+				<AiOutlineQrcode />
 			</button>
 		</div>
 	);

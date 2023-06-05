@@ -2,9 +2,13 @@ import { z } from 'zod';
 import React from 'react';
 import { useRouter } from 'next/router';
 import { BiSad, BiHappy, BiX } from 'react-icons/bi';
+import { useI18nContext } from '~/i18n/i18n-react';
 import { Loading } from '~/ui/Layout';
 import { api } from '~/utils/api';
 import { CounterDownDate } from '~/ui/Countdown';
+import { type Invitation } from '@prisma/client';
+import { getI18nProps } from '~/utils/i18n';
+import { prisma } from '~/server/db';
 
 const querySchema = z.object({
 	id: z.string(),
@@ -30,9 +34,6 @@ interface ContentProps {
 }
 
 function Content(props: ContentProps) {
-	const accept = api.invitations.accept.useMutation();
-	const decline = api.invitations.decline.useMutation();
-	const [status, setStatus] = React.useState<Status>('idle');
 	const { id } = props;
 
 	const invitation = api.invitations.get.useQuery(
@@ -44,26 +45,49 @@ function Content(props: ContentProps) {
 		},
 	);
 
-	function onAccepting() {
-		setStatus('accepting');
-	}
+	return (
+		<>
+			<Loading isLoading={invitation.isLoading} />
+			{invitation.data && (
+				<InvitationContent invitation={invitation.data} />
+			)}
+		</>
+	);
+}
+
+interface InvitationContentProps {
+	invitation: Invitation;
+}
+
+function InvitationContent(props: InvitationContentProps) {
+	const { invitation } = props;
+	const reply = api.invitations.reply.useMutation();
+	const [status, setStatus] = React.useState<Status>('idle');
+	const { LL } = useI18nContext();
+
+	const { id, amount } = invitation;
 
 	function onAccept(acceptedAmount: number) {
-		accept.mutate({
+		reply.mutate({
 			id,
+			status: 'Accepted',
 			acceptedAmount,
 		});
 	}
 
 	function onDecline() {
-		decline.mutate({
+		reply.mutate({
 			id,
+			status: 'Declined',
 		});
+	}
+
+	function onAccepting() {
+		setStatus('accepting');
 	}
 
 	return (
 		<>
-			<Loading isLoading={invitation.isLoading} />
 			<div className="mt-4 px-2">
 				<div className="mx-auto max-w-2xl">
 					<div className="">
@@ -74,8 +98,7 @@ function Content(props: ContentProps) {
 						</h1>
 
 						<p className="mt-4 text-center">
-							Estas cordialmente invitado a la celebracion de nuestra
-							boda
+							{LL.inviteMessage(amount)}
 						</p>
 						<h2 className="mt-8 text-center font-sans text-2xl font-bold uppercase text-primary">
 							Ya falta poco
@@ -84,7 +107,7 @@ function Content(props: ContentProps) {
 							<CounterDownDate />
 						</div>
 						<h2 className="mt-8 text-center font-sans text-2xl font-bold uppercase text-primary">
-							Confirmanos si podras ir
+							{LL.inviteMessage(amount)}
 						</h2>
 						<div className="mt-4 flex justify-around">
 							<div className="text-center">
@@ -93,7 +116,9 @@ function Content(props: ContentProps) {
 									className="inline-flex flex-col items-center text-6xl text-success"
 								>
 									<BiHappy />
-									<span className="text-lg">Asistire</span>
+									<span className="text-lg">
+										{LL.acceptInvitation(amount)}
+									</span>
 								</button>
 							</div>
 							<div className="text-center">
@@ -102,7 +127,9 @@ function Content(props: ContentProps) {
 									className="inline-flex flex-col items-center text-6xl text-error"
 								>
 									<BiSad />
-									<span className="text-lg">No podre asistir</span>
+									<span className="text-lg">
+										{LL.declineInvitation(amount)}
+									</span>
 								</button>
 							</div>
 						</div>
@@ -124,7 +151,7 @@ function Content(props: ContentProps) {
 						</div>
 						<div className="flex justify-center">
 							<div className="join join-horizontal mt-4">
-								{Array(invitation.data?.amount)
+								{Array(amount)
 									.fill(0)
 									.map((_, index) => {
 										return (
@@ -145,3 +172,19 @@ function Content(props: ContentProps) {
 		</>
 	);
 }
+
+export async function getStaticPaths() {
+	const invitations = await prisma.invitation.findMany({
+		where: {},
+		select: {
+			id: true,
+		},
+	});
+
+	return {
+		paths: invitations.map((params) => ({ params })),
+		fallback: true,
+	};
+}
+
+export const getStaticProps = getI18nProps;

@@ -41,16 +41,34 @@ export const invitationsRouter = createTRPCRouter({
 				},
 			});
 		}),
-	accept: publicProcedure
+	reply: publicProcedure
 		.input(
-			z.object({
-				id: z.string(),
-				acceptedAmount: z.number(),
-			}),
+			z.union([
+				z.object({
+					id: z.string(),
+					acceptedAmount: z.number(),
+					status: z.literal('Accepted'),
+				}),
+				z.object({
+					id: z.string(),
+					status: z.literal('Declined'),
+				}),
+			]),
 		)
 		.mutation((args) => {
 			const { ctx, input } = args;
 			const { prisma } = ctx;
+
+			if (input.status === 'Declined') {
+				return prisma.invitation.update({
+					where: {
+						id: input.id,
+					},
+					data: {
+						status: 'Declined',
+					},
+				});
+			}
 
 			return prisma.invitation.update({
 				where: {
@@ -62,25 +80,7 @@ export const invitationsRouter = createTRPCRouter({
 				},
 			});
 		}),
-	decline: publicProcedure
-		.input(
-			z.object({
-				id: z.string(),
-			}),
-		)
-		.mutation((args) => {
-			const { ctx, input } = args;
-			const { prisma } = ctx;
 
-			return prisma.invitation.update({
-				where: {
-					id: input.id,
-				},
-				data: {
-					status: 'Declined',
-				},
-			});
-		}),
 	get: publicProcedure
 		.input(
 			z.object({

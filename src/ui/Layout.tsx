@@ -15,8 +15,6 @@ export function Layout(props: LayoutProps) {
 		return <>{children}</>;
 	}
 
-	console.log('session.status', session.status);
-
 	return (
 		<>
 			<Loading isLoading={session.status === 'loading'} />

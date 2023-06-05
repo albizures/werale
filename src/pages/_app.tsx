@@ -5,6 +5,10 @@ import { Playfair_Display, Lato } from 'next/font/google';
 
 import { type AppType } from 'next/app';
 import { api } from '~/utils/api';
+import type { Locales, Translation } from '~/i18n/i18n-types';
+import { loadedLocales } from '~/i18n/i18n-util';
+import { loadFormatters } from '~/i18n/i18n-util.async';
+import TypesafeI18n from '~/i18n/i18n-react';
 
 const lato = Lato({
 	subsets: ['latin'],
@@ -18,11 +22,21 @@ const playfairDisplay = Playfair_Display({
 	variable: '--font-playfair',
 });
 
-const MyApp: AppType<{ session: Session | null }> = ({
-	Component,
-	pageProps: { session, ...pageProps },
-}) => {
-	return (
+interface Props {
+	session: Session | null;
+	i18n: {
+		locale: Locales;
+		dictionary: Translation;
+	};
+}
+
+const MyApp: AppType<Props> = (props) => {
+	const {
+		Component,
+		pageProps: { session, ...pageProps },
+	} = props;
+
+	const content = (
 		<div
 			className={`${playfairDisplay.variable} ${lato.variable} font-mono`}
 		>
@@ -31,6 +45,19 @@ const MyApp: AppType<{ session: Session | null }> = ({
 			</SessionProvider>
 		</div>
 	);
+
+	if (!pageProps.i18n) {
+		// probably an Error page
+		return content;
+	}
+
+	const locale: Locales = pageProps.i18n.locale;
+	const dictionary: Translation = pageProps.i18n.dictionary;
+
+	loadedLocales[locale] = dictionary;
+	loadFormatters(locale);
+
+	return <TypesafeI18n locale={locale}>{content}</TypesafeI18n>;
 };
 
 export default api.withTRPC(MyApp);

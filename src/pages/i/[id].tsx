@@ -102,7 +102,7 @@ function InvitationContent(props: InvitationContentProps) {
 					<h1
 						ref={onScreen}
 						data-animate="zoomIn"
-						className="animate__animated flex flex-col items-center px-10 font-serif text-8xl text-olive"
+						className="animate__animated flex flex-col items-center px-10 font-serif text-8xl text-olive delay-75"
 					>
 						<span className="-translate-x-8">Alejandra</span>
 						<span className="translate-x-4 scale-[2] text-4xl text-secondary-focus">

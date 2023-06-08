@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 export function Navbar() {
 	const router = useRouter();
 	return (
-		<div className="py-2">
+		<div className="py-2 font-mono">
 			<div className="navbar rounded-box border border-base-200 bg-base-100 shadow">
 				<div className="navbar-start">
 					<div className="dropdown">

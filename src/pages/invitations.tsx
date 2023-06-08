@@ -45,7 +45,7 @@ export function Content() {
 		data: allQuery.data ?? [],
 	});
 	return (
-		<div>
+		<div className="font-mono">
 			<CreateInvitation />
 			<div className="mt-8 overflow-x-auto">
 				<table className="table-zebra table">

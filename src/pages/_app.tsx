@@ -1,26 +1,13 @@
+import 'animate.css';
 import '~/styles/globals.css';
 import { type Session } from 'next-auth';
 import { SessionProvider } from 'next-auth/react';
-import { Playfair_Display, Lato } from 'next/font/google';
-
 import { type AppType } from 'next/app';
 import { api } from '~/utils/api';
 import type { Locales, Translation } from '~/i18n/i18n-types';
 import { loadedLocales } from '~/i18n/i18n-util';
 import { loadFormatters } from '~/i18n/i18n-util.async';
 import TypesafeI18n from '~/i18n/i18n-react';
-
-const lato = Lato({
-	subsets: ['latin'],
-	variable: '--font-lato',
-	weight: ['100', '300', '400', '700', '900'],
-});
-
-const playfairDisplay = Playfair_Display({
-	subsets: ['latin'],
-	weight: ['400', '500', '600', '700', '800', '900'],
-	variable: '--font-playfair',
-});
 
 interface Props {
 	session: Session | null;
@@ -37,9 +24,8 @@ const MyApp: AppType<Props> = (props) => {
 	} = props;
 
 	const content = (
-		<div
-			className={`${playfairDisplay.variable} ${lato.variable} font-mono`}
-		>
+		<div>
+			<title>Ale 🫶 Werner</title>
 			<SessionProvider session={session}>
 				<Component {...pageProps} />
 			</SessionProvider>

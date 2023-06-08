@@ -23,17 +23,53 @@ type RootTranslation = {
 	 */
 	declineInvitation: string
 	/**
-	 * E​s​t​á​{​{​s​|​n​}​}​ ​c​o​r​d​i​a​l​m​e​n​t​e​ ​i​n​v​i​t​a​d​o​ ​a​ ​l​a​ ​c​e​l​e​b​r​a​c​i​ó​n​ ​d​e​ ​n​u​e​s​t​r​a​ ​b​o​d​a
+	 * S​e​r​á​ ​u​n​ ​h​o​n​o​r​ ​q​u​e​ ​n​o​s​ ​a​c​o​m​p​a​ñ​e​{​{​s​|​n​}​}​ ​e​n​ ​n​u​e​s​t​r​a​ ​b​o​d​a
 	 */
 	inviteMessage: string
 	/**
-	 * C​o​n​f​i​r​m​a​n​o​s​ ​s​i​ ​p​o​d​r​á​{​{​s​|​n​}​}​ ​i​r
+	 * A​h​o​r​a​ ​q​u​e​ ​s​a​b​e​s​ ​d​o​n​d​e​ ​s​e​r​á​ ​e​l​ ​c​h​o​n​g​u​e​n​g​e​ ​¿​n​o​s​ ​a​c​o​m​p​a​ñ​a​r​á​{​{​s​|​n​}​}​?
 	 */
 	confirmPlease: string
 	/**
 	 * ¿​C​u​á​n​t​o​s​ ​i​r​á​n​?
 	 */
 	howMany: string
+	church: {
+		/**
+		 * ¿​T​i​e​n​e​s​ ​d​u​d​a​ ​d​e​ ​d​o​n​d​e​ ​e​s​ ​l​a​ ​m​i​s​a​?
+		 */
+		title: string
+		/**
+		 * L​a​ ​i​g​l​e​s​i​a​ ​s​e​ ​l​l​a​m​a​ ​E​l​ ​D​i​v​i​n​o​ ​R​e​d​e​n​t​o​r
+		 */
+		description: string
+		/**
+		 * L​a​ ​i​g​l​e​s​i​a​ ​c​u​e​n​t​a​ ​c​o​n​ ​p​a​r​q​u​e​o​ ​y​ ​c​o​b​r​a​n​ ​Q​5​.​0​0​ ​e​n​ ​e​f​e​c​t​i​v​o​.
+		 */
+		parking: string
+		/**
+		 * E​c​h​a​ ​u​n​ ​v​i​s​t​a​z​o​ ​d​e​ ​l​a​s​ ​i​n​s​t​a​l​c​i​o​n​e​s
+		 */
+		footer: string
+	}
+	reception: {
+		/**
+		 * ¿​T​i​e​n​e​s​ ​d​u​d​a​ ​d​e​ ​d​o​n​d​e​ ​e​s​ ​l​a​ ​r​e​c​e​p​c​i​o​n​?
+		 */
+		title: string
+		/**
+		 * E​l​ ​l​u​g​a​r​ ​s​e​ ​l​l​a​m​a​ ​A​m​n​e​r​y​'​s​ ​C​a​s​t​l​e
+		 */
+		description: string
+		/**
+		 * S​e​ ​e​n​c​e​n​t​r​a​ ​d​e​s​p​u​é​s​ ​d​e​l​ ​C​C​ ​S​a​n​t​a​ ​C​l​a​r​a​,​ ​c​a​m​i​n​o​ ​a​ ​D​e​l​t​a​ ​B​á​r​c​e​n​a​s​,​ ​c​u​e​n​t​a​ ​c​o​n​ ​p​a​r​q​u​e​o​ ​g​r​a​t​i​s​.
+		 */
+		parking: string
+		/**
+		 * E​c​h​a​ ​u​n​ ​v​i​s​t​a​z​o​ ​d​e​ ​l​a​s​ ​i​n​s​t​a​l​c​i​o​n​e​s
+		 */
+		footer: string
+	}
 }
 
 export type TranslationFunctions = {
@@ -46,17 +82,53 @@ export type TranslationFunctions = {
 	 */
 	declineInvitation: (arg0: number | string | boolean) => LocalizedString
 	/**
-	 * Está{{s|n}} cordialmente invitado a la celebración de nuestra boda
+	 * Será un honor que nos acompañe{{s|n}} en nuestra boda
 	 */
 	inviteMessage: (arg0: number | string | boolean) => LocalizedString
 	/**
-	 * Confirmanos si podrá{{s|n}} ir
+	 * Ahora que sabes donde será el chonguenge ¿nos acompañará{{s|n}}?
 	 */
 	confirmPlease: (arg0: number | string | boolean) => LocalizedString
 	/**
 	 * ¿Cuántos irán?
 	 */
 	howMany: () => LocalizedString
+	church: {
+		/**
+		 * ¿Tienes duda de donde es la misa?
+		 */
+		title: () => LocalizedString
+		/**
+		 * La iglesia se llama El Divino Redentor
+		 */
+		description: () => LocalizedString
+		/**
+		 * La iglesia cuenta con parqueo y cobran Q5.00 en efectivo.
+		 */
+		parking: () => LocalizedString
+		/**
+		 * Echa un vistazo de las instalciones
+		 */
+		footer: () => LocalizedString
+	}
+	reception: {
+		/**
+		 * ¿Tienes duda de donde es la recepcion?
+		 */
+		title: () => LocalizedString
+		/**
+		 * El lugar se llama Amnery's Castle
+		 */
+		description: () => LocalizedString
+		/**
+		 * Se encentra después del CC Santa Clara, camino a Delta Bárcenas, cuenta con parqueo gratis.
+		 */
+		parking: () => LocalizedString
+		/**
+		 * Echa un vistazo de las instalciones
+		 */
+		footer: () => LocalizedString
+	}
 }
 
 export type Formatters = {}

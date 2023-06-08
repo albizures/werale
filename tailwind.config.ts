@@ -5,8 +5,8 @@ export default {
 	theme: {
 		extend: {
 			fontFamily: {
-				serif: ['var(--font-playfair)'],
-				sans: ['var(--font-lato)'],
+				serif: ['var(--font-darleston)'],
+				sans: ['var(--font-gabriola)'],
 			},
 		},
 	},

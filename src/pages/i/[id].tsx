@@ -10,6 +10,7 @@ import { type Invitation } from '@prisma/client';
 import { getI18nProps } from '~/utils/i18n';
 import { prisma } from '~/server/db';
 import clsx from 'clsx';
+import { FaWaze } from 'react-icons/fa';
 
 const querySchema = z.object({
 	id: z.string(),
@@ -97,11 +98,11 @@ function InvitationContent(props: InvitationContentProps) {
 		<div className="fixed inset-0 mx-auto max-w-2xl overflow-y-auto shadow md:my-4 md:rounded">
 			<div className="pattern-bg sticky top-0 h-full bg-repeat" />
 			<div className="absolute top-0 w-full">
-				<div className="border-y-1 mt-8 border-base-200 bg-base-100 px-4 py-8 shadow-inner">
+				<div className="border-y-1 mt-8 border-base-200 bg-base-100 bg-opacity-70 px-4 py-8 shadow-inner">
 					<h1
 						ref={onScreen}
 						data-animate="zoomIn"
-						className="animate__animated flex flex-col items-center bg-white px-10 font-serif text-8xl text-primary-focus"
+						className="animate__animated flex flex-col items-center px-10 font-serif text-8xl text-olive"
 					>
 						<span className="-translate-x-8">Alejandra</span>
 						<span className="translate-x-4 scale-[2] text-4xl text-secondary-focus">
@@ -115,7 +116,7 @@ function InvitationContent(props: InvitationContentProps) {
 					</p>
 				</div>
 
-				<div className="border-y-1 mt-8 border-base-200 bg-base-100">
+				<div className="border-y-1 mt-8 border-base-200 bg-base-100 bg-opacity-70">
 					<div className="space-y-4">
 						<Place
 							title={LL.church.title()}
@@ -137,7 +138,7 @@ function InvitationContent(props: InvitationContentProps) {
 						/>
 					</div>
 
-					<div className="bg-base-100 px-4 py-6">
+					<div className="px-4 py-6">
 						<h2 className="text-center font-sans text-2xl font-bold uppercase text-primary">
 							Ya falta poco
 						</h2>
@@ -148,7 +149,7 @@ function InvitationContent(props: InvitationContentProps) {
 				</div>
 
 				<div className="py-8">
-					<div className="border-y-1 border-base-200 bg-base-100 px-4 py-8 shadow-inner">
+					<div className="border-y-1 border-base-200 bg-base-100 bg-opacity-70 px-4 py-8 shadow-inner">
 						<h2 className="text-center font-sans text-2xl font-bold uppercase text-primary">
 							{LL.confirmPlease(amount)}
 						</h2>
@@ -293,17 +294,17 @@ function Place(props: PlaceProps) {
 	} = props;
 	return (
 		<div
-			className={clsx('bg-base-100 md:flex', {
+			className={clsx('bg-opacity-70 md:flex', {
 				'flex-row-reverse': isReversed,
 			})}
 		>
-			<div className="flex-1 space-y-3 p-4 text-center">
+			<div className="flex-1 space-y-4 p-4 text-center">
 				<h3 className="text-2xl font-bold text-primary-focus">
 					{title}
 				</h3>
-				<p className="text-xl">{description}</p>
-				<p className="text-xl">{parking}</p>
-				<p className="text-xl">{footer}</p>
+				<p className="text-xl leading-5">{description}</p>
+				<p className="text-xl leading-5">{parking}</p>
+				<p className="text-xl leading-5">{footer}</p>
 			</div>
 			<div className="m-4 flex-1">
 				<div className="wrapper">
@@ -322,6 +323,7 @@ function Place(props: PlaceProps) {
 						className="text-2xl text-primary underline hover:text-primary-focus"
 						href={waze}
 					>
+						<FaWaze className="mr-1 inline-block" />
 						waze
 					</a>
 				</p>

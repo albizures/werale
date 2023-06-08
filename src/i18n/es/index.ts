@@ -10,17 +10,17 @@ const de = {
 	howMany: '¿Cuántos irán?',
 	church: {
 		title: '¿Tienes duda de donde es la misa?',
-		description: 'La iglesia se llama El Divino Redentor',
+		description: 'La iglesia se llama El Divino Redentor.',
 		parking:
 			'La iglesia cuenta con parqueo y cobran Q5.00 en efectivo.',
-		footer: 'Echa un vistazo de las instalciones',
+		footer: 'Echa un vistazo de las instalciones.',
 	},
 	reception: {
 		title: '¿Tienes duda de donde es la recepcion?',
-		description: "El lugar se llama Amnery's Castle",
+		description: "El lugar se llama Amnery's Castle.",
 		parking:
-			'Se encentra después del CC Santa Clara, camino a Delta Bárcenas, cuenta con parqueo gratis.',
-		footer: 'Echa un vistazo de las instalciones',
+			'Se encuentra después del CC Santa Clara, camino a Delta Bárcenas, cuenta con parqueo gratis.',
+		footer: 'Echa un vistazo de las instalciones.',
 	},
 } satisfies BaseTranslation;
 

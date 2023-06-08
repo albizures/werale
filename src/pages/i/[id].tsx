@@ -122,15 +122,18 @@ function InvitationContent(props: InvitationContentProps) {
 							description={LL.church.description()}
 							parking={LL.church.parking()}
 							footer={LL.church.footer()}
-							link="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d7720.14803473098!2d-90.50442085396084!3d14.651739723334886!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sgt!4v1686015510383!5m2!1sen!2sgt"
+							link="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15442.067426354592!2d-90.5606623!3d14.626577!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8589a1b3a657661b%3A0x4861d1e8322d7ce0!2sParroquia%20El%20Divino%20Redentor!5e0!3m2!1sen!2sgt!4v1686190105648!5m2!1sen!2sgt"
+							waze="https://waze.com/ul/h9fxe5nz36"
 						/>
+
 						<Place
 							isReversed={true}
-							title={LL.church.title()}
-							description={LL.church.description()}
-							parking={LL.church.parking()}
-							footer={LL.church.footer()}
-							link="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d7720.14803473098!2d-90.50442085396084!3d14.651739723334886!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sgt!4v1686015510383!5m2!1sen!2sgt"
+							title={LL.reception.title()}
+							description={LL.reception.description()}
+							parking={LL.reception.parking()}
+							footer={LL.reception.footer()}
+							link="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15449.365332216232!2d-90.598158!3d14.522458!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8589a77eeb4169d1%3A0xf2f84ba6b9b5f6b!2sAmnery&#39;s%20Castle!5e0!3m2!1sen!2sgt!4v1686192388467!5m2!1sen!2sgt"
+							waze="https://waze.com/ul/h9fxdd7sxd"
 						/>
 					</div>
 
@@ -218,16 +221,6 @@ function InvitationContent(props: InvitationContentProps) {
 			)}
 		</div>
 	);
-
-	/* <iframe
-		src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d7720.14803473098!2d-90.50442085396084!3d14.651739723334886!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sgt!4v1686015510383!5m2!1sen!2sgt"
-		className="border-0"
-		width="600"
-		height="450"
-		allowFullScreen={false}
-		loading="lazy"
-		referrerPolicy="no-referrer-when-downgrade"
-	></iframe> */
 }
 
 export async function getStaticPaths() {
@@ -284,6 +277,7 @@ interface PlaceProps {
 	parking: string;
 	footer: string;
 	link: string;
+	waze: string;
 	isReversed?: boolean;
 }
 
@@ -294,6 +288,7 @@ function Place(props: PlaceProps) {
 		parking,
 		footer,
 		link,
+		waze,
 		isReversed = false,
 	} = props;
 	return (
@@ -322,6 +317,14 @@ function Place(props: PlaceProps) {
 						referrerPolicy="no-referrer-when-downgrade"
 					/>
 				</div>
+				<p className="py-1 text-center">
+					<a
+						className="text-2xl text-primary underline hover:text-primary-focus"
+						href={waze}
+					>
+						waze
+					</a>
+				</p>
 			</div>
 		</div>
 	);

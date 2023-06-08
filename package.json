@@ -3,6 +3,7 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
+		"prebuild": "pnpm typesafe-i18n",
 		"build": "next build",
 		"dev": "next dev",
 		"dev:translate": "npm-run-all --parallel dev typesafe-i18n",

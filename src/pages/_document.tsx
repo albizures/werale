@@ -5,6 +5,21 @@ export default function Document() {
 		<Html>
 			<Head>
 				<link
+					rel="preload"
+					href="https://fonts.cdnfonts.com/s/13435/gabriola Font Download.woff"
+					as="font"
+					type="font/woff"
+					crossOrigin=""
+				/>
+				<link
+					rel="preload"
+					href="https://fonts.cdnfonts.com/s/15027/Darleston.woff"
+					as="font"
+					type="font/woff"
+					crossOrigin=""
+				/>
+
+				<link
 					href="https://fonts.cdnfonts.com/css/gabriola?styles=15410"
 					rel="stylesheet"
 				/>

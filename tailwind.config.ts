@@ -10,6 +10,7 @@ export default {
 			fontFamily: {
 				serif: ['var(--font-darleston)'],
 				sans: ['var(--font-gabriola)'],
+				montserrat: ['var(--montserrat)'],
 			},
 		},
 	},

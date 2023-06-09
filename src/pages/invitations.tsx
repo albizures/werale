@@ -96,6 +96,11 @@ export function Content() {
 						))}
 					</tfoot>
 				</table>
+				{allQuery.isLoading && (
+					<div className="my-10 text-center">
+						<span className="loading loading-spinner loading-lg text-primary-focus"></span>
+					</div>
+				)}
 			</div>
 		</div>
 	);

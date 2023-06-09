@@ -63,7 +63,7 @@ function CounterDown(props: CounterDownProps) {
 
 	return (
 		<div className="flex flex-col">
-			<span className="countdown font-mono text-4xl">
+			<span className="countdown font-montserrat text-4xl text-gray-600">
 				<span ref={ref}></span>
 			</span>
 

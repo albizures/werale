@@ -1,6 +1,7 @@
 import 'animate.css';
 import '~/styles/globals.css';
 import { type Session } from 'next-auth';
+import { Montserrat } from 'next/font/google';
 import { SessionProvider } from 'next-auth/react';
 import { type AppType } from 'next/app';
 import { api } from '~/utils/api';
@@ -8,6 +9,11 @@ import type { Locales, Translation } from '~/i18n/i18n-types';
 import { loadedLocales } from '~/i18n/i18n-util';
 import { loadFormatters } from '~/i18n/i18n-util.async';
 import TypesafeI18n from '~/i18n/i18n-react';
+
+const montserrat = Montserrat({
+	variable: '--montserrat',
+	subsets: ['latin'],
+});
 
 interface Props {
 	session: Session | null;
@@ -24,7 +30,7 @@ const MyApp: AppType<Props> = (props) => {
 	} = props;
 
 	const content = (
-		<div>
+		<div className={`${montserrat.variable}`}>
 			<title>Ale 🫶 Werner</title>
 			<SessionProvider session={session}>
 				<Component {...pageProps} />

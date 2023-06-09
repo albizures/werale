@@ -69,19 +69,45 @@ function InvitationContent(props: InvitationContentProps) {
 
 	const { id, amount, name } = invitation;
 
+	const wasNowReplied =
+		status === 'accepted' || status === 'declined';
+	const wasBeforeReplied =
+		invitation.status === 'Accepted' ||
+		invitation.status === 'Declined';
+	const wasReplied = wasNowReplied || wasBeforeReplied;
+
+	const wasAccepted =
+		status === 'accepted' || invitation.status === 'Accepted';
+	const wasDeclined =
+		status === 'declined' || invitation.status === 'Declined';
+
 	function onAccept(acceptedAmount: number) {
-		reply.mutate({
-			id,
-			status: 'Accepted',
-			acceptedAmount,
-		});
+		reply.mutate(
+			{
+				id,
+				status: 'Accepted',
+				acceptedAmount,
+			},
+			{
+				onSuccess() {
+					setStatus('accepted');
+				},
+			},
+		);
 	}
 
 	function onDecline() {
-		reply.mutate({
-			id,
-			status: 'Declined',
-		});
+		reply.mutate(
+			{
+				id,
+				status: 'Declined',
+			},
+			{
+				onSuccess() {
+					setStatus('declined');
+				},
+			},
+		);
 	}
 
 	function onReplyCancel() {
@@ -145,45 +171,67 @@ function InvitationContent(props: InvitationContentProps) {
 							waze="https://waze.com/ul/h9fxdd7sxd"
 						/>
 					</div>
-
-					<div className="px-4 py-6">
-						<h2 className="text-center font-sans text-2xl font-bold uppercase text-primary">
-							Ya falta poco
-						</h2>
-						<div className="mt-4 flex justify-center">
-							<CounterDownDate />
-						</div>
-					</div>
 				</div>
 
 				<div className="py-8">
-					<div className="border-y-1 border-base-200 bg-base-100 bg-opacity-70 px-4 py-8 shadow-inner">
-						<h2 className="text-center font-sans text-2xl font-bold uppercase text-primary">
-							{LL.confirmPlease(amount)}
-						</h2>
-						<div className="mt-4 flex justify-around">
-							<div className="text-center">
-								<button
-									onClick={onAccepting}
-									className="inline-flex flex-col items-center text-6xl text-success"
-								>
-									<BiHappy />
-									<span className="text-lg">
-										{LL.acceptInvitation(amount)}
-									</span>
-								</button>
-							</div>
-							<div className="text-center">
-								<button
-									onClick={onDecline}
-									className="inline-flex flex-col items-center text-6xl text-error"
-								>
-									<BiSad />
-									<span className="text-lg">
-										{LL.declineInvitation(amount)}
-									</span>
-								</button>
-							</div>
+					<div className="border-y-1 border-base-200 bg-base-100 bg-opacity-70 px-4 shadow-inner">
+						{!wasReplied && (
+							<>
+								<h2 className="pt-8 text-center font-sans text-2xl font-bold uppercase text-primary">
+									{LL.confirmPlease(amount)}
+								</h2>
+								<div className="mt-4 flex justify-around">
+									<div className="text-center">
+										<button
+											onClick={onAccepting}
+											className="inline-flex flex-col items-center text-6xl text-success"
+										>
+											<BiHappy />
+											<span className="text-lg">
+												{LL.acceptInvitation(amount)}
+											</span>
+										</button>
+									</div>
+									<div className="text-center">
+										<button
+											onClick={onDecline}
+											className="inline-flex flex-col items-center text-6xl text-error"
+										>
+											<BiSad />
+											<span className="text-lg">
+												{LL.declineInvitation(amount)}
+											</span>
+										</button>
+									</div>
+								</div>
+							</>
+						)}
+
+						<div className="px-4 py-6">
+							<h2 className="text-center font-sans text-2xl font-bold uppercase text-primary-focus">
+								{wasAccepted ? (
+									<>
+										Es un gusto saber que nos acompañaras, prepara tu
+										traje o vestido que nos vemos en:
+									</>
+								) : wasDeclined ? (
+									<>
+										Será una pena no contar con tu asistencia, gracias
+										por confirmar
+									</>
+								) : (
+									<>Ya falta poco</>
+								)}
+							</h2>
+
+							{!(
+								status === 'declined' ||
+								invitation.status === 'Declined'
+							) && (
+								<div className="mt-4 flex justify-center">
+									<CounterDownDate />
+								</div>
+							)}
 						</div>
 					</div>
 				</div>
@@ -217,7 +265,7 @@ function InvitationContent(props: InvitationContentProps) {
 											<button
 												onClick={() => onAccept(index + 1)}
 												key={index}
-												className="btn-neutral join-item btn"
+												className="btn-neutral btn-md join-item btn text-2xl"
 											>
 												{index + 1}
 											</button>
@@ -328,7 +376,7 @@ function Place(props: PlaceProps) {
 				</div>
 				<p className="py-1 text-center">
 					<a
-						className="text-2xl text-primary underline hover:text-primary-focus"
+						className="text-2xl text-primary-focus underline hover:text-secondary-focus"
 						href={waze}
 					>
 						<FaWaze className="mr-1 inline-block" />

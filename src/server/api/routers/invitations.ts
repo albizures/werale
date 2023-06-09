@@ -98,6 +98,33 @@ export const invitationsRouter = createTRPCRouter({
 				},
 			});
 		}),
+	update: protectedProcedure
+		.input(
+			z.object({
+				id: z.string(),
+				name: z.string().optional(),
+				description: z.string().optional(),
+				amount: z.number().optional(),
+				// status: z.literal('Sent').optional(),
+			}),
+		)
+		.mutation(async (args) => {
+			const { ctx, input } = args;
+			const { prisma } = ctx;
+			const { id, name, description, amount } = input;
+
+			await prisma.invitation.update({
+				where: {
+					id,
+				},
+				data: {
+					name,
+					description,
+					amount,
+					// status,
+				},
+			});
+		}),
 	delete: protectedProcedure
 		.input(
 			z.object({

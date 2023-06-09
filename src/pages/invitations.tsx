@@ -112,7 +112,14 @@ const index = columnHelper.display({
 		return props.row.index + 1;
 	},
 });
-const name = columnHelper.accessor('name', {});
+const name = columnHelper.accessor('name', {
+	// cell(props) {
+	// 	const invitation = props.row.original;
+	// 	const a = props.getValue();
+	// 	const {} = props;
+	// 	return;
+	// },
+});
 const description = columnHelper.accessor('description', {});
 const amount = columnHelper.accessor('amount', {
 	footer(props) {

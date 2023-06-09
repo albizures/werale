@@ -67,7 +67,7 @@ function InvitationContent(props: InvitationContentProps) {
 	const [status, setStatus] = React.useState<Status>('idle');
 	const { LL } = useI18nContext();
 
-	const { id, amount } = invitation;
+	const { id, amount, name } = invitation;
 
 	function onAccept(acceptedAmount: number) {
 		reply.mutate({
@@ -89,7 +89,15 @@ function InvitationContent(props: InvitationContentProps) {
 	}
 
 	function onAccepting() {
-		setStatus('accepting');
+		if (amount === 1) {
+			reply.mutate({
+				id,
+				status: 'Accepted',
+				acceptedAmount: 1,
+			});
+		} else {
+			setStatus('accepting');
+		}
 	}
 
 	const onScreen = useAnimateOnScreen();
@@ -112,7 +120,7 @@ function InvitationContent(props: InvitationContentProps) {
 					</h1>
 
 					<p className="mt-4 text-center text-3xl">
-						{LL.inviteMessage(amount)}
+						{LL.inviteMessage({ name, amount })}
 					</p>
 				</div>
 

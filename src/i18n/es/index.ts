@@ -4,19 +4,18 @@ const de = {
 	acceptInvitation: '{{ Asistire | Asistiremos }}',
 	declineInvitation: 'No podre{{mos}} asistir',
 	inviteMessage:
-		'Será un honor que nos acompañe{{ s| n }} en nuestra boda',
+		'{name:string} será un honor que nos acompañe{{amount: s| n }} en nuestra boda',
 	confirmPlease:
 		'Ahora que sabes donde será el chonguenge ¿nos acompañará{{s | n}}?',
 	howMany: '¿Cuántos irán?',
 	church: {
 		title: '¿Tienes duda de donde es la misa?',
 		description: 'La iglesia se llama El Divino Redentor.',
-		parking:
-			'La iglesia cuenta con parqueo y cobran Q5.00 en efectivo.',
+		parking: 'Cuenta con parqueo y cobran Q5.00 en efectivo.',
 		footer: 'Echa un vistazo de las instalciones.',
 	},
 	reception: {
-		title: '¿Tienes duda de donde es la recepcion?',
+		title: '¿Tienes duda de donde es la recepción?',
 		description: "El lugar se llama Amnery's Castle.",
 		parking:
 			'Se encuentra después del CC Santa Clara, camino a Delta Bárcenas, cuenta con parqueo gratis.',

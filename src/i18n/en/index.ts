@@ -1,10 +1,11 @@
+import { type RequiredParams } from 'typesafe-i18n';
 import type { Translation } from '../i18n-types';
 
 const en = {
 	acceptInvitation: "{{ I | We }}'ll assist",
 	declineInvitation: "{{ I | We }} won't assist",
 	inviteMessage:
-		'You are cordially invited to our wedding celebration',
+		'{name: string} You are cordially invited to our wedding celebration' as unknown as RequiredParams<'name'>,
 	confirmPlease: 'Confirm us if you can go',
 	howMany: 'How many will go?',
 	church: {

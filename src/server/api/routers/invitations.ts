@@ -65,6 +65,7 @@ export const invitationsRouter = createTRPCRouter({
 						id: input.id,
 					},
 					data: {
+						acceptedAmount: 0,
 						status: 'Declined',
 					},
 				});
@@ -97,6 +98,21 @@ export const invitationsRouter = createTRPCRouter({
 				},
 			});
 		}),
+	delete: protectedProcedure
+		.input(
+			z.object({
+				id: z.string(),
+			}),
+		)
+		.mutation(async (args) => {
+			const { ctx, input } = args;
+			const { prisma } = ctx;
+			await prisma.invitation.delete({
+				where: {
+					id: input.id,
+				},
+			});
+		}),
 	hello: publicProcedure
 		.input(z.object({ text: z.string() }))
 		.query(({ input }) => {
@@ -105,7 +121,7 @@ export const invitationsRouter = createTRPCRouter({
 			};
 		}),
 
-	getAll: publicProcedure.query(({ ctx }) => {
+	getAll: protectedProcedure.query(({ ctx }) => {
 		return ctx.prisma.invitation.findMany();
 	}),
 

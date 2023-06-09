@@ -12,7 +12,7 @@ import { type inferProcedureInput } from '@trpc/server';
 import Link from 'next/link';
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { BiCopy } from 'react-icons/bi';
+import { BiCopy, BiEdit, BiTrash } from 'react-icons/bi';
 import { AiOutlineQrcode } from 'react-icons/ai';
 import { useCopyToClipboard } from 'react-use';
 import { type AppRouter } from '~/server/api/root';
@@ -67,7 +67,7 @@ export function Content() {
 					</thead>
 					<tbody>
 						{table.getRowModel().rows.map((row) => (
-							<tr key={row.id}>
+							<tr className="hover" key={row.id}>
 								{row.getVisibleCells().map((cell) => (
 									<td key={cell.id}>
 										{flexRender(
@@ -155,8 +155,20 @@ function downloadURI(name: string, uri: string) {
 }
 
 export function Actions(props: CellContext<Invitation, unknown>) {
-	const {} = props;
-	const invitation = props.row.original;
+	const { row } = props;
+	const [status, setStatus] = React.useState<'idle' | 'loading'>(
+		'idle',
+	);
+	const utils = api.useContext();
+	const invitation = row.original;
+	const deleteMutation = api.invitations.delete.useMutation({
+		async onSuccess() {
+			await utils.invitations.getAll.invalidate();
+		},
+		onSettled() {
+			setStatus('idle');
+		},
+	});
 	const link = `${location.origin}/i/${invitation.id}`;
 	const [state, copyToClipboard] = useCopyToClipboard();
 
@@ -171,26 +183,51 @@ export function Actions(props: CellContext<Invitation, unknown>) {
 		);
 	}
 
+	function onDelete() {
+		if (confirm('Esta seguro de eliminar?')) {
+			setStatus('loading');
+			deleteMutation.mutate({
+				id: invitation.id,
+			});
+		}
+	}
+	if (status === 'loading') {
+		return (
+			<div className="flex w-full items-center justify-center">
+				<span className="loading loading-dots loading-md text-primary-focus"></span>
+			</div>
+		);
+	}
+
 	return (
-		<div className="flex items-center">
+		<div className="flex w-full items-center">
 			<Link href={link} target="_blank" className="btn-link btn">
 				link
 			</Link>
-			<button
-				onClick={onCopy}
-				className={clsx('text-lg', {
-					'text-primary-focus': !state.value,
-					'text-success': state.value,
-				})}
-			>
-				<BiCopy />
-			</button>
-			<button
-				onClick={onQRCode}
-				className="ml-3 text-lg text-primary-focus"
-			>
-				<AiOutlineQrcode />
-			</button>
+			<div className="flex flex-1 space-x-2">
+				<button
+					onClick={onCopy}
+					className={clsx('text-lg', {
+						'text-primary-focus': !state.value,
+						'text-success': state.value,
+					})}
+				>
+					<BiCopy />
+				</button>
+
+				<button
+					onClick={onQRCode}
+					className="text-lg text-primary-focus"
+				>
+					<AiOutlineQrcode />
+				</button>
+				<button className="text-lg text-primary-focus">
+					<BiEdit />
+				</button>
+				<button onClick={onDelete} className="text-lg text-error">
+					<BiTrash />
+				</button>
+			</div>
 		</div>
 	);
 }

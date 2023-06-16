@@ -7,22 +7,18 @@ import {
 	useReactTable,
 } from '@tanstack/react-table';
 import { downloadURI } from 'only-fns/files/downloadURI';
-import type {
-	inferProcedureOutput,
-	inferProcedureInput,
-} from '@trpc/server';
+import type { inferProcedureOutput } from '@trpc/server';
 import Link from 'next/link';
 import React from 'react';
-import { useForm } from 'react-hook-form';
-import { BiCopy, BiEdit, BiTrash } from 'react-icons/bi';
+import { BiCopy, BiEdit, BiTrash, BiX } from 'react-icons/bi';
 import { AiOutlineQrcode } from 'react-icons/ai';
 import { useCopyToClipboard } from 'react-use';
 import { type AppRouter } from '~/server/api/root';
-import { Field } from '~/ui/Field';
 import { Layout } from '~/ui/Layout';
 import { api } from '~/utils/api';
 import QRCode from 'qrcode';
 import { Table } from '~/ui/Table';
+import { CreateOrEditInvitation } from '~/ui/CreateOrEdit';
 
 export default function Invitations() {
 	const event = api.events.getFirst.useQuery();
@@ -51,7 +47,7 @@ export default function Invitations() {
 	return (
 		<Layout isAdmin={true}>
 			<div className="font-mono">
-				<CreateInvitation eventId={event.data?.id ?? ''} />
+				<CreateOrEditInvitation eventId={event.data?.id ?? ''} />
 				<div className="mt-8 overflow-x-auto">
 					<Table table={table} />
 					{allQuery.isLoading && (
@@ -150,9 +146,10 @@ const actions = columnHelper.display({
 
 function Actions(props: CellContext<TableType, unknown>) {
 	const { row } = props;
-	const [status, setStatus] = React.useState<'idle' | 'loading'>(
-		'idle',
-	);
+
+	const [status, setStatus] = React.useState<
+		'idle' | 'loading' | 'editing'
+	>('idle');
 	const utils = api.useContext();
 	const invitation = row.original;
 	const deleteMutation = api.invitations.delete.useMutation({
@@ -185,6 +182,13 @@ function Actions(props: CellContext<TableType, unknown>) {
 			});
 		}
 	}
+	function onStopEditing() {
+		setStatus('idle');
+	}
+	function onStartEditing() {
+		setStatus('editing');
+	}
+
 	if (status === 'loading') {
 		return (
 			<div className="flex w-full items-center justify-center">
@@ -215,93 +219,46 @@ function Actions(props: CellContext<TableType, unknown>) {
 				>
 					<AiOutlineQrcode />
 				</button>
-				<button className="text-lg text-primary-focus">
+				<button
+					onClick={onStartEditing}
+					className="text-lg text-primary-focus"
+				>
 					<BiEdit />
+					{status === 'editing' && (
+						<div className="fixed inset-0 flex items-center justify-center px-8 backdrop-blur-sm">
+							<button
+								className="absolute inset-0 z-0"
+								onClick={onStopEditing}
+							></button>
+							<div className="relative z-10 rounded-lg border bg-base-100 p-4 shadow">
+								<div className="flex items-center justify-between gap-3">
+									<h3 className="font-sans text-3xl font-bold text-primary">
+										Editando invitacion para {'"'}
+										{invitation.name}
+										{'"'}
+									</h3>
+									<div>
+										<button
+											onClick={onStopEditing}
+											className="text-3xl text-base-300 "
+										>
+											<BiX />
+										</button>
+									</div>
+								</div>
+								<CreateOrEditInvitation
+									onDone={onStopEditing}
+									eventId={invitation.eventId}
+									invitation={invitation}
+								/>
+							</div>
+						</div>
+					)}
 				</button>
 				<button onClick={onDelete} className="text-lg text-error">
 					<BiTrash />
 				</button>
 			</div>
 		</div>
-	);
-}
-
-type NewInvitation = inferProcedureInput<
-	AppRouter['_def']['procedures']['invitations']['create']
->;
-
-interface CreateInvitationProps {
-	eventId: string;
-}
-
-function CreateInvitation(props: CreateInvitationProps) {
-	const { eventId } = props;
-	const [status, setStatus] = React.useState<'idle' | 'creating'>(
-		'idle',
-	);
-	const { reset, register, formState, handleSubmit } =
-		useForm<NewInvitation>({});
-	const context = api.useContext();
-
-	const mutation = api.invitations.create.useMutation({
-		onSettled() {
-			setStatus('idle');
-		},
-		async onSuccess() {
-			reset();
-			await context.invitations.getByEvent.invalidate();
-		},
-	});
-
-	function onSubmit(data: NewInvitation) {
-		setStatus('creating');
-		mutation.mutate({
-			...data,
-			eventId,
-		});
-	}
-
-	return (
-		<form onSubmit={handleSubmit(onSubmit)}>
-			<div className="grid grid-cols-3 gap-2">
-				<Field
-					label="Nombre"
-					placeholder="Escribe el nombre de la invitation..."
-					input={register('name', {
-						required: true,
-					})}
-				/>
-				<Field
-					label="Cantidad de entradas"
-					type="number"
-					placeholder="Escribe aqui la cantidad de entradas..."
-					input={register('amount', {
-						required: true,
-						min: 1,
-						valueAsNumber: true,
-					})}
-				/>
-
-				<Field
-					label="descripcion"
-					placeholder="Escribe la description..."
-					input={register('description', {
-						required: false,
-					})}
-				/>
-			</div>
-			<div className="mt-4 flex justify-center">
-				<button
-					disabled={!formState.isValid || status === 'creating'}
-					className="btn-primary btn-block btn max-w-sm"
-				>
-					{status === 'creating' ? (
-						<span className="loading loading-spinner"></span>
-					) : (
-						<span>Crear</span>
-					)}
-				</button>
-			</div>
-		</form>
 	);
 }

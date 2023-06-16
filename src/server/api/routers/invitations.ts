@@ -129,6 +129,7 @@ export const invitationsRouter = createTRPCRouter({
 				},
 			});
 		}),
+
 	update: protectedProcedure
 		.input(
 			z.object({

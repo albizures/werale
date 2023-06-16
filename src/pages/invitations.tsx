@@ -168,9 +168,32 @@ function Actions(props: CellContext<TableType, unknown>) {
 	}
 
 	async function onQRCode() {
+		const canvas = await QRCode.toCanvas(link);
+
+		const { width, height } = canvas;
+		const biggerCanvas = document.createElement('canvas');
+		console.log('ww', width, height);
+
+		biggerCanvas.width = width * 4;
+		biggerCanvas.height = height * 4;
+
+		const context = biggerCanvas.getContext('2d')!;
+		context.imageSmoothingEnabled = false;
+		context.drawImage(
+			canvas,
+			0,
+			0,
+			width,
+			height,
+			0,
+			0,
+			width * 4,
+			height * 4,
+		);
+
 		downloadURI(
 			`qr-${invitation.name}.png`,
-			await QRCode.toDataURL(link),
+			biggerCanvas.toDataURL(),
 		);
 	}
 

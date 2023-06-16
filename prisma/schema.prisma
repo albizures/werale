@@ -12,6 +12,18 @@ datasource db {
     relationMode = "prisma"
 }
 
+model Reply {
+    id           String           @id @default(cuid())
+    status       InvitationStatus @default(Declined)
+    amount       Int              @default(0)
+    invitation   Invitation       @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+    invitationId String
+    createdAt    DateTime         @default(now())
+    updatedAt    DateTime         @updatedAt
+
+    @@index(invitationId)
+}
+
 enum InvitationStatus {
     Sent
     Accepted
@@ -20,23 +32,43 @@ enum InvitationStatus {
 }
 
 model Invitation {
-    id             String           @id @default(cuid())
-    name           String
-    description    String?
-    amount         Int
-    acceptedAmount Int              @default(0)
-    status         InvitationStatus
-    createdAt      DateTime         @default(now())
-    updatedAt      DateTime         @updatedAt
+    id          String   @id @default(cuid())
+    name        String
+    description String?
+    amount      Int
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    replies     Reply[]
+    event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+    eventId     String
+
+    @@index(eventId)
+}
+
+model Event {
+    id            String         @id @default(cuid())
+    name          String
+    invitations   Invitation[]
+    confirmations Confirmation[]
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
+}
+
+model Confirmation {
+    id        String   @id @default(cuid())
+    date      DateTime
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    Event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+    eventId   String
+
+    @@index(eventId)
 }
 
 model Role {
-    id     String  @id @default(cuid())
-    slug   String
-    user   User?   @relation(fields: [userId], references: [id])
-    userId String?
-
-    @@index(userId)
+    id    String @id @default(cuid())
+    slug  String
+    users User[]
 }
 
 // Necessary for Next auth

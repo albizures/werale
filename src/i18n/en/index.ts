@@ -22,6 +22,9 @@ const en = {
 			'Se encentra después del CC Santa Clara, camino a Delta Bárcenas, cuenta con parqueo gratis.',
 		footer: 'Echa un vistazo de las instalaciones',
 	},
+	declinedMessage: '',
+	acceptMessage: '',
+	changeOfMind: 'Ya nos confirmaste',
 } satisfies Translation;
 
 export default en;

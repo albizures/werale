@@ -1,14 +1,16 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import clsx from 'clsx';
-import type { Invitation } from '@prisma/client';
 import {
 	type CellContext,
 	createColumnHelper,
-	flexRender,
 	getCoreRowModel,
 	useReactTable,
 } from '@tanstack/react-table';
-import { type inferProcedureInput } from '@trpc/server';
+import { downloadURI } from 'only-fns/files/downloadURI';
+import type {
+	inferProcedureOutput,
+	inferProcedureInput,
+} from '@trpc/server';
 import Link from 'next/link';
 import React from 'react';
 import { useForm } from 'react-hook-form';
@@ -20,17 +22,19 @@ import { Field } from '~/ui/Field';
 import { Layout } from '~/ui/Layout';
 import { api } from '~/utils/api';
 import QRCode from 'qrcode';
+import { Table } from '~/ui/Table';
 
 export default function Invitations() {
-	return (
-		<Layout isAdmin={true}>
-			<Content />
-		</Layout>
+	const event = api.events.getFirst.useQuery();
+	const allQuery = api.invitations.getByEvent.useQuery(
+		{
+			eventId: event.data?.id ?? '',
+		},
+		{
+			enabled: event.isFetched,
+		},
 	);
-}
 
-export function Content() {
-	const allQuery = api.invitations.getAll.useQuery();
 	const table = useReactTable({
 		getCoreRowModel: getCoreRowModel(),
 		columns: [
@@ -45,68 +49,27 @@ export function Content() {
 		data: allQuery.data ?? [],
 	});
 	return (
-		<div className="font-mono">
-			<CreateInvitation />
-			<div className="mt-8 overflow-x-auto">
-				<table className="table-zebra table">
-					<thead>
-						{table.getHeaderGroups().map((headerGroup) => (
-							<tr key={headerGroup.id}>
-								{headerGroup.headers.map((header) => (
-									<th key={header.id}>
-										{header.isPlaceholder
-											? null
-											: flexRender(
-													header.column.columnDef.header,
-													header.getContext(),
-											  )}
-									</th>
-								))}
-							</tr>
-						))}
-					</thead>
-					<tbody>
-						{table.getRowModel().rows.map((row) => (
-							<tr className="hover" key={row.id}>
-								{row.getVisibleCells().map((cell) => (
-									<td key={cell.id}>
-										{flexRender(
-											cell.column.columnDef.cell,
-											cell.getContext(),
-										)}
-									</td>
-								))}
-							</tr>
-						))}
-					</tbody>
-					<tfoot>
-						{table.getFooterGroups().map((footerGroup) => (
-							<tr key={footerGroup.id}>
-								{footerGroup.headers.map((header) => (
-									<th key={header.id}>
-										{header.isPlaceholder
-											? null
-											: flexRender(
-													header.column.columnDef.footer,
-													header.getContext(),
-											  )}
-									</th>
-								))}
-							</tr>
-						))}
-					</tfoot>
-				</table>
-				{allQuery.isLoading && (
-					<div className="my-10 text-center">
-						<span className="loading loading-spinner loading-lg text-primary-focus"></span>
-					</div>
-				)}
+		<Layout isAdmin={true}>
+			<div className="font-mono">
+				<CreateInvitation eventId={event.data?.id ?? ''} />
+				<div className="mt-8 overflow-x-auto">
+					<Table table={table} />
+					{allQuery.isLoading && (
+						<div className="my-10 text-center">
+							<span className="loading loading-spinner loading-lg text-primary-focus"></span>
+						</div>
+					)}
+				</div>
 			</div>
-		</div>
+		</Layout>
 	);
 }
 
-const columnHelper = createColumnHelper<Invitation>();
+type TableType = inferProcedureOutput<
+	AppRouter['_def']['procedures']['invitations']['getAll']
+>[number];
+
+const columnHelper = createColumnHelper<TableType>();
 
 const index = columnHelper.display({
 	id: 'index',
@@ -117,14 +80,7 @@ const index = columnHelper.display({
 		return props.row.index + 1;
 	},
 });
-const name = columnHelper.accessor('name', {
-	// cell(props) {
-	// 	const invitation = props.row.original;
-	// 	const a = props.getValue();
-	// 	const {} = props;
-	// 	return;
-	// },
-});
+const name = columnHelper.accessor('name', {});
 const description = columnHelper.accessor('description', {});
 const amount = columnHelper.accessor('amount', {
 	footer(props) {
@@ -135,17 +91,53 @@ const amount = columnHelper.accessor('amount', {
 		return `total: ${amount}`;
 	},
 });
-const status = columnHelper.accessor('status', {});
-const acceptedAmount = columnHelper.accessor('acceptedAmount', {
+const status = columnHelper.display({
+	id: 'status',
+	header() {
+		return 'Status';
+	},
+	cell(props) {
+		const { original: invitation } = props.row;
+
+		const reply = invitation.replies[0];
+
+		if (!reply) {
+			return <div>waiting</div>;
+		}
+
+		return <div>{reply.status}</div>;
+	},
+});
+const acceptedAmount = columnHelper.display({
 	footer(props) {
 		const { table } = props;
 		const amount = table
 			.getFilteredRowModel()
-			.rows.reduce(
-				(total, row) => total + row.original.acceptedAmount,
-				0,
-			);
+			.rows.reduce((total, row) => {
+				const { original: invitation } = row;
+
+				const reply = invitation.replies[0];
+
+				if (!reply) {
+					return total;
+				}
+
+				return total + reply.amount;
+			}, 0);
 		return `total: ${amount}`;
+	},
+	id: 'acceptedAmount',
+	header() {
+		return 'Aceptadas';
+	},
+	cell(props) {
+		const { original: invitation } = props.row;
+		const reply = invitation.replies[0];
+		if (!reply) {
+			return <div>0</div>;
+		}
+
+		return <div>{reply.amount}</div>;
 	},
 });
 const actions = columnHelper.display({
@@ -156,17 +148,7 @@ const actions = columnHelper.display({
 	cell: (props) => <Actions {...props} />,
 });
 
-function downloadURI(name: string, uri: string) {
-	const link = document.createElement('a');
-	link.download = name;
-	link.href = uri;
-	link.style.display = 'none';
-	document.body.appendChild(link);
-	link.click();
-	document.body.removeChild(link);
-}
-
-export function Actions(props: CellContext<Invitation, unknown>) {
+function Actions(props: CellContext<TableType, unknown>) {
 	const { row } = props;
 	const [status, setStatus] = React.useState<'idle' | 'loading'>(
 		'idle',
@@ -175,7 +157,7 @@ export function Actions(props: CellContext<Invitation, unknown>) {
 	const invitation = row.original;
 	const deleteMutation = api.invitations.delete.useMutation({
 		async onSuccess() {
-			await utils.invitations.getAll.invalidate();
+			await utils.invitations.getByEvent.invalidate();
 		},
 		onSettled() {
 			setStatus('idle');
@@ -248,7 +230,12 @@ type NewInvitation = inferProcedureInput<
 	AppRouter['_def']['procedures']['invitations']['create']
 >;
 
-function CreateInvitation() {
+interface CreateInvitationProps {
+	eventId: string;
+}
+
+function CreateInvitation(props: CreateInvitationProps) {
+	const { eventId } = props;
 	const [status, setStatus] = React.useState<'idle' | 'creating'>(
 		'idle',
 	);
@@ -257,16 +244,21 @@ function CreateInvitation() {
 	const context = api.useContext();
 
 	const mutation = api.invitations.create.useMutation({
+		onSettled() {
+			setStatus('idle');
+		},
 		async onSuccess() {
 			reset();
-			await context.invitations.getAll.invalidate();
-			setStatus('idle');
+			await context.invitations.getByEvent.invalidate();
 		},
 	});
 
 	function onSubmit(data: NewInvitation) {
 		setStatus('creating');
-		mutation.mutate(data);
+		mutation.mutate({
+			...data,
+			eventId,
+		});
 	}
 
 	return (
@@ -279,22 +271,22 @@ function CreateInvitation() {
 						required: true,
 					})}
 				/>
-
-				<Field
-					label="descripcion"
-					placeholder="Escribe la description..."
-					input={register('description', {
-						required: true,
-					})}
-				/>
-
 				<Field
 					label="Cantidad de entradas"
 					type="number"
 					placeholder="Escribe aqui la cantidad de entradas..."
 					input={register('amount', {
 						required: true,
+						min: 1,
 						valueAsNumber: true,
+					})}
+				/>
+
+				<Field
+					label="descripcion"
+					placeholder="Escribe la description..."
+					input={register('description', {
+						required: false,
 					})}
 				/>
 			</div>

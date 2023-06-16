@@ -71,6 +71,12 @@ type RootTranslation = {
 		 */
 		footer: string
 	}
+	declinedMessage: string
+	acceptMessage: string
+	/**
+	 * Y​a​ ​n​o​s​ ​c​o​n​f​i​r​m​a​s​t​e
+	 */
+	changeOfMind: string
 }
 
 export type TranslationFunctions = {
@@ -130,6 +136,12 @@ export type TranslationFunctions = {
 		 */
 		footer: () => LocalizedString
 	}
+	declinedMessage: () => LocalizedString
+	acceptMessage: () => LocalizedString
+	/**
+	 * Ya nos confirmaste
+	 */
+	changeOfMind: () => LocalizedString
 }
 
 export type Formatters = {}

@@ -6,7 +6,7 @@ import { useI18nContext } from '~/i18n/i18n-react';
 import { Loading } from '~/ui/Layout';
 import { api } from '~/utils/api';
 import { CounterDownDate } from '~/ui/Countdown';
-import { type Invitation } from '@prisma/client';
+import type { Reply, Invitation, Confirmation } from '@prisma/client';
 import { getI18nProps } from '~/utils/i18n';
 import { prisma } from '~/server/db';
 import clsx from 'clsx';
@@ -51,7 +51,11 @@ function Content(props: ContentProps) {
 		<>
 			<Loading isLoading={invitation.isLoading} />
 			{invitation.data && (
-				<InvitationContent invitation={invitation.data} />
+				<InvitationContent
+					reply={invitation.data.replies[0]}
+					invitation={invitation.data}
+					confirmation={invitation.data.event.confirmations[0]}
+				/>
 			)}
 		</>
 	);
@@ -59,30 +63,51 @@ function Content(props: ContentProps) {
 
 interface InvitationContentProps {
 	invitation: Invitation;
+	reply?: Reply;
+	confirmation?: Confirmation;
+}
+
+function isBeforeConfirmation(
+	reply?: Reply,
+	confirmation?: Confirmation,
+): boolean {
+	return Boolean(
+		reply && confirmation && confirmation.date > reply.createdAt,
+	);
 }
 
 function InvitationContent(props: InvitationContentProps) {
-	const { invitation } = props;
-	const reply = api.invitations.reply.useMutation();
+	const { invitation, reply, confirmation } = props;
+	const replyMutation = api.invitations.reply.useMutation();
 	const [status, setStatus] = React.useState<Status>('idle');
 	const { LL } = useI18nContext();
 
 	const { id, amount, name } = invitation;
 
-	const wasNowReplied =
-		status === 'accepted' || status === 'declined';
+	const isDeclined = status === 'declined';
+	const isAccepted = status === 'accepted';
+	const replyIsDeclined = Boolean(
+		reply && reply.status === 'Declined',
+	);
+	const replyIsAccepted = Boolean(
+		reply && reply.status === 'Accepted',
+	);
+
+	const wasNowReplied = isAccepted || isDeclined;
 	const wasBeforeReplied =
-		invitation.status === 'Accepted' ||
-		invitation.status === 'Declined';
+		!isBeforeConfirmation(reply, confirmation) &&
+		(replyIsAccepted || replyIsDeclined);
 	const wasReplied = wasNowReplied || wasBeforeReplied;
 
 	const wasAccepted =
-		status === 'accepted' || invitation.status === 'Accepted';
+		isAccepted ||
+		(!isBeforeConfirmation(reply, confirmation) && replyIsAccepted);
 	const wasDeclined =
-		status === 'declined' || invitation.status === 'Declined';
+		isDeclined ||
+		(!isBeforeConfirmation(reply, confirmation) && replyIsDeclined);
 
 	function onAccept(acceptedAmount: number) {
-		reply.mutate(
+		replyMutation.mutate(
 			{
 				id,
 				status: 'Accepted',
@@ -97,7 +122,7 @@ function InvitationContent(props: InvitationContentProps) {
 	}
 
 	function onDecline() {
-		reply.mutate(
+		replyMutation.mutate(
 			{
 				id,
 				status: 'Declined',
@@ -116,7 +141,7 @@ function InvitationContent(props: InvitationContentProps) {
 
 	function onAccepting() {
 		if (amount === 1) {
-			reply.mutate({
+			replyMutation.mutate({
 				id,
 				status: 'Accepted',
 				acceptedAmount: 1,
@@ -224,10 +249,7 @@ function InvitationContent(props: InvitationContentProps) {
 								)}
 							</h2>
 
-							{!(
-								status === 'declined' ||
-								invitation.status === 'Declined'
-							) && (
+							{!wasDeclined && (
 								<div className="mt-4 flex justify-center">
 									<CounterDownDate />
 								</div>
@@ -298,8 +320,6 @@ export const getStaticProps = getI18nProps;
 
 function useAnimateOnScreen() {
 	return React.useCallback((element: HTMLDivElement) => {
-		console.log('ekene', element);
-
 		if (!element) {
 			return;
 		}

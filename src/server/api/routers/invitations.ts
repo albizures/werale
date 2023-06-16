@@ -10,6 +10,7 @@ export const invitationsRouter = createTRPCRouter({
 	create: protectedProcedure
 		.input(
 			z.object({
+				eventId: z.string(),
 				name: z.string(),
 				description: z.string().optional().nullish(),
 				amount: z.number(),
@@ -37,7 +38,6 @@ export const invitationsRouter = createTRPCRouter({
 				data: {
 					...input,
 					id,
-					status: 'Created',
 				},
 			});
 		}),
@@ -65,8 +65,12 @@ export const invitationsRouter = createTRPCRouter({
 						id: input.id,
 					},
 					data: {
-						acceptedAmount: 0,
-						status: 'Declined',
+						replies: {
+							create: {
+								amount: 0,
+								status: 'Declined',
+							},
+						},
 					},
 				});
 			}
@@ -76,8 +80,12 @@ export const invitationsRouter = createTRPCRouter({
 					id: input.id,
 				},
 				data: {
-					status: 'Accepted',
-					acceptedAmount: input.acceptedAmount,
+					replies: {
+						create: {
+							status: 'Accepted',
+							amount: input.acceptedAmount,
+						},
+					},
 				},
 			});
 		}),
@@ -92,9 +100,32 @@ export const invitationsRouter = createTRPCRouter({
 			const { ctx, input } = args;
 			const { prisma } = ctx;
 
-			return prisma.invitation.findUniqueOrThrow({
+			return prisma.invitation.findFirstOrThrow({
 				where: {
 					id: input.id,
+				},
+				include: {
+					replies: {
+						orderBy: {
+							updatedAt: 'desc',
+						},
+						take: 1,
+					},
+					event: {
+						include: {
+							confirmations: {
+								orderBy: {
+									date: 'desc',
+								},
+								where: {
+									date: {
+										lte: new Date(),
+									},
+								},
+								take: 1,
+							},
+						},
+					},
 				},
 			});
 		}),
@@ -105,7 +136,6 @@ export const invitationsRouter = createTRPCRouter({
 				name: z.string().optional(),
 				description: z.string().optional(),
 				amount: z.number().optional(),
-				// status: z.literal('Sent').optional(),
 			}),
 		)
 		.mutation(async (args) => {
@@ -121,7 +151,6 @@ export const invitationsRouter = createTRPCRouter({
 					name,
 					description,
 					amount,
-					// status,
 				},
 			});
 		}),
@@ -148,9 +177,44 @@ export const invitationsRouter = createTRPCRouter({
 			};
 		}),
 
-	getAll: protectedProcedure.query(({ ctx }) => {
-		return ctx.prisma.invitation.findMany();
+	getAll: protectedProcedure.query((args) => {
+		const { ctx } = args;
+		const { prisma } = ctx;
+		return prisma.invitation.findMany({
+			include: {
+				replies: {
+					orderBy: {
+						updatedAt: 'desc',
+					},
+					take: 1,
+				},
+			},
+		});
 	}),
+	getByEvent: protectedProcedure
+		.input(
+			z.object({
+				eventId: z.string(),
+			}),
+		)
+		.query((args) => {
+			const { ctx, input } = args;
+			const { prisma } = ctx;
+
+			return prisma.invitation.findMany({
+				where: {
+					eventId: input.eventId,
+				},
+				include: {
+					replies: {
+						orderBy: {
+							updatedAt: 'desc',
+						},
+						take: 1,
+					},
+				},
+			});
+		}),
 
 	getSecretMessage: protectedProcedure.query(() => {
 		return 'you can now see this secret message!';

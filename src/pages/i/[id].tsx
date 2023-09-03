@@ -145,7 +145,11 @@ function InvitationContent(props: InvitationContentProps) {
 				id,
 				status: 'Accepted',
 				acceptedAmount: 1,
-			});
+			}, 	{
+				onSuccess() {
+					setStatus('accepted');
+				},
+			},);
 		} else {
 			setStatus('accepting');
 		}
